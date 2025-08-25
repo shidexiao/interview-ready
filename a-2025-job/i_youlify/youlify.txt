@@ -1,0 +1,88 @@
+
+Youlify 是一家以 AI 驱动的“收入周期管理”（Revenue Cycle Management, RCM）平台，
+专注于医疗账单和理赔优化，
+主要帮助医疗机构提高结算效率、减少拒付和漏报情况，从而提升收入
+
+他们的系统融合了先进的机器学习模型和人工运营团队，
+能够识别漏报、欠报、拒付模式等问题，并结合 EHR（电子病历系统）与账单流程，
+实现端到端的自动化管理，同时保留人工监管以保证质量
+
+创始人包括前心脏外科医生与急诊医生 Bo Gu（CEO），
+AI 金融科技领域的资深创业者 Sally Liang，
+以及 NLP 专家 Howard Peng（CTO）
+
+2025 年 4 月，Youlify 完成了由 Bonfire Ventures 领投的 430 万美元种子轮融资，
+参与者包括 Illia Polosukhin（NEAR Protocol 联合创始人）及 Dan Roth（宾夕法尼亚大学教授，Oracle 首席 AI 科学家）
+
+
+ 与同类产品对比
+来自 Elion 平台的对比中，Youlify 的特点如下：
+产品	项目覆盖	技术特点	合规性
+Youlify	Coding Assist、Claims、Denials、EOB、Analytics	AI Agent + 人工 + EHR Operator，端到端流程	HIPAA 和 SOC 2 Type II
+Dexit	Intelligent Document Processing	IDP + EHR 集成，偏文档提取	有合规认证
+Adonis Billing / Intelligence	预测分析、拒赔预警、实时仪表板	侧重分析和预防	合规
+
+Youlify 更加专注于自动化整个 RCM 流程，覆盖从提交到申诉再到支付回款的全部环节，而非仅限编码或文档处理。
+
+
+
+
+
+关键术语速查
+EHR：Electronic Health Record（电子病历系统）
+ICD-10：国际疾病分类
+CPT：医疗操作编码
+HCPCS：医疗器械/药物编码
+EOB：Explanation of Benefits（保险支付说明）
+NCCI Edits：国家编码互斥规则
+Modifier：编码修饰符，提供额外信息（如部位、次数、专业部分）
+
+
+
+
+
+4. 整体业务逻辑
+从 多数据源（EHR / 外部数据库 / 影像库）收集所有与就诊和账单相关的信息。
+通过 Missed Claim Capture 检查漏单 → 确保应收尽收。
+用 Coding Assist 生成标准化编码。
+用 Claim Scrubbing 提交前清洗，保证一次性通过。
+如果拒付 → Denial Management 自动化处理。
+收到付款信息 → Paper EOB Posting 自动对账，回写到系统。
+
+这套流程就是诊所端（Practice Login）看到的 “Youlify 如何帮你管理从就诊到回款的全链路”。
+
+
+
+Youlify 的 AI 驱动 RCM 全流程梳理成了三个层次：
+
+1. 数据输入端
+EHR System：病历、诊断、治疗记录
+External Database：医保政策、编码规则、外部数据源
+Image Depository：影像资料、扫描文档
+
+2. 核心 AI 模块
+Missed Claim Capture：捕捉漏报账单
+Coding Assist：编码生成与优化
+Claim Scrubbing：理赔数据清洗与规则校验
+Denial Management：拒付原因分析与申诉
+Paper EOB Posting：纸质支付说明 OCR + 自动入账
+
+3. 业务执行端
+Practice Front Desk：前台/账单人员查看与处理结果
+Financial Reconciliation：财务对账与收入确认
+
+整个链路从数据采集到 AI 模块处理，再到人工复核与财务结算，形成闭环，确保“应收尽收、减少拒付、加快回款”。
+
+
+Coding Assist（编码辅助）
+从病历/检查中自动生成或建议 ICD-10 / CPT / HCPCS 编码，并优化以减少拒付。
+
+Claim Scrubbing（理赔清洗）
+在提交前检查 claim 是否符合保险公司的要求（编码合法性、数据完整性、payer-specific 规则），避免一次就被拒。
+
+Denial Management（拒付管理）
+对被拒付的账单进行原因分析、补充证据、重新提交（申诉）。
+
+Paper EOB Posting（纸质 EOB 入账）
+从保险公司寄来的纸质 Explanation of Benefits（支付说明）中，用 OCR/NLP 自动提取支付信息并录入系统，对账更新收入记录。
+

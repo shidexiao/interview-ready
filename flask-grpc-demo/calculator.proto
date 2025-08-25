@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package calculator;
+
+// 定义服务接口
+service Calculator {
+  rpc Add (AddRequest) returns (AddResponse);
+}
+
+// 定义消息
+message AddRequest {
+  double num1 = 1;
+  double num2 = 2;
+}
+
+message AddResponse {
+  double result = 1;
+}

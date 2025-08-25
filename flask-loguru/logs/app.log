@@ -1,0 +1,8 @@
+2024-09-12 16:48:47.141 | INFO     | __main__:log_request_info:23 - Received request: GET http://127.0.0.1:5000/login
+2024-09-12 16:49:54.845 | INFO     | __main__:log_request_info:23 - Received request: POST http://127.0.0.1:5000/login
+2024-09-12 16:50:10.625 | INFO     | __main__:log_request_info:23 - Received request: POST http://127.0.0.1:5000/login
+2024-09-12 16:50:27.733 | INFO     | __main__:log_request_info:23 - Received request: POST http://127.0.0.1:5000/auth/login
+2024-09-12 16:51:10.841 | INFO     | __main__:log_request_info:23 - Received request: POST http://127.0.0.1:5000/auth/login
+2024-09-12 16:51:10.841 | DEBUG    | blueprints.auth:login:8 - Login attempt with data: {}
+2024-09-12 16:51:58.002 | INFO     | __main__:log_request_info:23 - Received request: GET http://127.0.0.1:5000/products/list
+2024-09-12 16:51:58.002 | DEBUG    | blueprints.products:list_products:8 - Fetching product list

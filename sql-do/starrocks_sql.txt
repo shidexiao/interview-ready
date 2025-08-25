@@ -1,0 +1,1501 @@
+select *
+from xj_zlsk_zld_back_base_info_stat
+limit 10;
+
+use zl_db;
+drop table if exists zlsk_zld_loan_info_stat;
+drop table if exists xj_zlsk_zld_24_loan_info_stat;
+CREATE TABLE IF NOT EXISTS `xj_zlsk_zld_24_loan_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_t`       DATE          NULL COMMENT "数据日期",
+    `d`            CHAR(7)       NULL COMMENT "放款月份"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '24现金贷借据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+/mnt/disk1/Data/miaojun/data_create/loan_info_all_20240724.csv
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/loan_info_all_20240724.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_24_loan_info_stat/_stream_load
+
+select *
+from xj_zlsk_zld_loan_info_stat;
+select *
+from xj_zlsk_zld_loan_info_stat;
+select count(*)
+from xj_zlsk_zld_loan_info_stat;
+select count(*)
+from xj_zlsk_zld_r_loan_base_info_stat;
+
+
+
+drop table if exists zlzx_zlsk_zld_loan_info_stat;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_loan_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `stat_t`      DATE          NULL COMMENT "数据日期",
+    `d`           CHAR(7)       NULL COMMENT "放款月份"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '借据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+select *
+from zl_db.zl_zlsk_zld_loan_info_stat;
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/tmp/loan_info_all_20241224.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_loan_info_stat/_stream_load
+cut -d',' -f1-2,4,6-8  /mnt/disk1/Data/yaowei/20241223/loan_info_all_20241223.csv > /mnt/disk1/Data/shidx/tmp/loan_info_all_20241223.csv
+
+
+cut -d',' -f1-2,4,6-8  /home/yaowei/20241224/loan_info_all_20241224.csv > /mnt/disk1/Data/shidx/tmp/loan_info_all_20241224.csv
+
+cut -d',' -f1-2,4,6-8  /home/yaowei/20241113/loan_info_all_20241113.csv > /mnt/disk1/Data/shidx/tmp/loan_info_filtered_20241113.csv
+
+
+
+drop table if exists `zlzx_zlsk_zld_loan_info_stat `;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_loan_info_stat `
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `funding_code` VARCHAR(23)   NULL COMMENT "资方代码",
+    `stat_t`       DATE          NULL COMMENT "数据日期",
+    `d`            CHAR(7)       NULL COMMENT "放款月份"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '借据表_zx'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+select *
+from zl_db.`zlzx_zlsk_zld_loan_info_stat `;
+select *
+from zl_db.`zlzx_zlsk_zld_loan_info_stat `;
+insert into `zlzx_zlsk_zld_loan_info_stat `
+select *
+from zlzx_zlsk_zld_loan_info_statX curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/tmp/loan_info_ZX_20241224_new_column.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_loan_info_statX/_stream_load
+cut -d',' -f1-2,4,6-8  /home/yaowei/20241224/loan_info_ZX_20241224_new_column.csv > /mnt/disk1/Data/shidx/tmp/loan_info_ZX_20241224_new_column.csv
+
+
+
+insert into `zlsk_loan_info_stat `
+select loan_no, round(loan_amt, -2) as loan_amt, int_star_dt, int_rate, stat_t, d
+from zlsk_loan_info_stat;
+
+select *
+from `zlsk_loan_info_stat `
+limit 10;
+
+
+select *
+from zlsk_loan_info_stat
+limit 10;
+
+
+drop table if exists xj_zlsk_zld_loan_info_stat;
+CREATE TABLE IF NOT EXISTS `xj_zlsk_zld_loan_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `stat_dt`     DATE          NULL COMMENT "数据日期",
+    `d`           CHAR(7)       NULL COMMENT "放款月份"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '借据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/tmp/loan_info_all_20241216.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_loan_info_stat/_stream_load
+cut -d',' -f1-2,4,6-8  /home/yaowei/20241216/loan_info_all_20241216.csv > /mnt/disk1/Data/shidx/tmp/loan_info_all_20241216.csv
+
+
+cut -d',' -f1-2,4,6-8  /home/yaowei/20241118/loan_info_all_20241118.csv > /mnt/disk1/Data/shidx/tmp/loan_info_all_20241118.csv
+
+cut -d',' -f1-2,4,6-8  /home/yaowei/20241113/loan_info_all_20241113.csv > /mnt/disk1/Data/shidx/tmp/loan_info_filtered_20241113.csv
+
+
+
+drop table if exists zlsk_zld_loan_info_stat;
+drop table if exists xj_zlsk_zld_24_loan_info_stat_new;
+CREATE TABLE IF NOT EXISTS `xj_zlsk_zld_24_loan_info_stat_new`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `stat_t`      DATE          NULL COMMENT "数据日期",
+    `d`           CHAR(7)       NULL COMMENT "放款月份"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '24现金贷借据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+insert into xj_zlsk_zld_24_loan_info_stat_new
+select loan_no, loan_amt, int_star_dt, int_rate, stat_t, d
+from xj_zlsk_zld_24_loan_info_stat;
+
+
+cut -d',' -f1-2,4-6,8 loan_info_all_20241113.csv > /mnt/disk1/Data/shidx/tmp/loan_info_filtered_20241113.csv
+cut -d',' -f1-2,4,6-8  /home/yaowei/20241113/loan_info_all_20241113.csv > /mnt/disk1/Data/shidx/tmp/loan_info_filtered_20241113.csv
+
+drop table if exists zlsk_xxd_loan_info_stat;
+CREATE TABLE IF NOT EXISTS `zlsk_xxd_loan_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `stat_t`      DATE          NULL COMMENT "数据日期",
+    `d`           CHAR(7)       NULL COMMENT "放款月份"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '借据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+insert into xj_zlsk_zld_loan_info_stat_new
+select loan_no, loan_amt, int_star_dt, int_rate, stat_t, d
+from xj_zlsk_zld_loan_info_stat;
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/tmp/loan_info_filtered_20241113.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_xxd_loan_info_stat/_stream_load
+
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/loan_info_all_20240808.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_jyfq_loan_info_stat/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/loan_info_all_20240808.csv -H "column_separator:," -H "columns:loan_no,loan_amt,int_star_dt,int_rate,stat_t,d" -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_loan_info_stat/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/tmp/filter-0809-1.csv -H "column_separator:,"  -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_loan_info_stat/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/tmp/filter-0919-1.csv -H "column_separator:,"  -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_loan_info_stat/_stream_load
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/tmp/filter-0919-2.csv -H "column_separator:,"  -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_loan_info_stat/_stream_load
+
+select *
+from zl_db.xj_zlsk_zld_loan_info_stat
+limit 10;
+
+drop table if exists zlsk_jyfq_loan_info_stat;
+CREATE TABLE IF NOT EXISTS `zlsk_jyfq_loan_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `stat_dt`      DATE          NULL COMMENT "数据日期",
+    `d`            CHAR(7)       NULL COMMENT "放款月份",
+    `shop_name`    VARCHAR(128)  NULL COMMENT "商户名称",
+    `shop_sip`     VARCHAR(64)   NULL COMMENT "商户简称",
+    `code_num`     VARCHAR(64)   NULL COMMENT "营业执照",
+    `shop_num`     VARCHAR(64)   NULL COMMENT "商户号",
+    `term`         VARCHAR(64)   NULL COMMENT "期数"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '借据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+alter table zlsk_jyfq_loan_info_stat
+    drop column loan_balance;
+alter table zlsk_jyfq_loan_info_stat
+    drop column curr_od_days;
+alter table zlsk_jyfq_loan_info_stat
+    drop column stat_dt;
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/loan_info_all_20240617.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_jyfq_loan_info_stat/_stream_load
+
+select *
+from zlsk_jyfq_loan_info_stat;
+
+
+select *
+from `zlsk_r_loan_base_info_stat `
+limit 10;
+CREATE TABLE IF NOT EXISTS `zlsk_r_loan_base_info_stat `
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '现金贷分定价vintage'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+insert into `zlsk_r_loan_base_info_stat `
+select loan_no, round(loan_amt, -2) as loan_amt, loan_balance, int_star_dt, curr_od_days, int_rate, stat_dt
+from zlsk_r_loan_base_info_stat;
+
+drop table if exists zlsk_r_loan_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlsk_r_loan_base_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '现金贷分定价vintage'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241118/zl_loan_base_info_24_20241118.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20241118/zl_loan_base_info_36_20241118.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_r_loan_base_info_stat/_stream_load
+
+
+
+drop table if exists zlsk_loan_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlsk_loan_base_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '现金贷vintage'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241118/zl_loan_base_info_100_20241118.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_loan_base_info_stat/_stream_load
+
+
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_24_20240808.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_36_20240808.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat/_stream_load
+
+curl --location-trusted -u root: -T /home/yaowei/20240918/zl_loan_base_info_24_20240918.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat/_stream_load
+
+
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_23_20240612.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat_new/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_24_20240612.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat_new/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_24_20240715.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_36_20240715.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_24_20240724.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_24_loan_base_info_stat/_stream_load
+
+
+drop table if exists zlsk_cut_base_info_stat;
+
+CREATE TABLE IF NOT EXISTS `zlsk_cut_base_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `loan_bal`    DECIMAL(8, 2) NULL COMMENT "剩余本金",
+    `od_days`     INT           NULL COMMENT "当前逾期天数",
+    `stat_t`      CHAR(7)       NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '现金贷截面数据'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241118/zl_cut_data_20241118.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_cut_base_info_stat/_stream_load
+
+
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_cut_data_20240724.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_24_cut_base_info_stat/_stream_load
+
+
+
+select count(*)
+from zlsk_r_cut_base_info_stat;
+drop table if exists zlsk_r_cut_base_info_stat;
+
+CREATE TABLE IF NOT EXISTS `zlsk_r_cut_base_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `loan_bal`    DECIMAL(8, 2) NULL COMMENT "剩余本金",
+    `od_days`     INT           NULL COMMENT "当前逾期天数",
+    `stat_t`      CHAR(7)       NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '现金贷分定价截面数据'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241118/zl_cut_data_24_20241118.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_r_cut_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20241118/zl_cut_data_36_20241118.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_r_cut_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20241118/zl_cut_data_36_20241118_v2.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_r_cut_base_info_stat/_stream_load
+
+
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_cut_data_20240724.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_24_cut_base_info_stat/_stream_load
+
+
+
+
+
+
+
+
+/home/yaowei/20241113/zl_cut_data_20241113.csv
+drop table if exists zlzx_zlsk_zld_cut_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_cut_base_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `loan_bal`    DECIMAL(8, 2) NULL COMMENT "剩余本金",
+    `od_days`     INT           NULL COMMENT "当前逾期天数",
+    `stat_t`      CHAR(7)       NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '截面数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241224/zl_cut_data_all_20241224.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_cut_base_info_stat/_stream_load
+
+insert into zl_zlsk_zld_cut_base_info_stat
+select *
+from xj_zlsk_zld_cut_base_info_stat
+
+drop table if exists `zl_zlsk_zld_cut_base_info_ stat`;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_cut_base_info_ stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `loan_bal`    DECIMAL(8, 2) NULL COMMENT "剩余本金",
+    `od_days`     INT           NULL COMMENT "当前逾期天数",
+    `stat_t`      CHAR(7)       NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '24现金贷截面数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/yaowei/20241223/zl_cut_data_24_20241223.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_cut_base_info_stat24/_stream_load
+
+ALTER TABLE `zl_zlsk_zld_cut_base_info_stat24` RENAME TO `zl_zlsk_zld_cut_base_info_stat `;
+alter table zl_db.zl_zlsk_zld_cut_base_info_stat24 RENAME TO `zl_db.zl_zlsk_zld_cut_base_info_stat `;
+insert into `zl_zlsk_zld_cut_base_info_ stat`
+select *
+from zl_db.zl_zlsk_zld_cut_base_info_stat24;
+select *
+from `zl_zlsk_zld_cut_base_info_ stat`;
+
+
+drop table if exists `zlzx_zlsk_zld_loan_plan1_info_stat`;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_loan_plan1_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `amt`          DECIMAL(8, 2) NOT NULL COMMENT "金额",
+    `term`         VARCHAR(3)    NOT NULL COMMENT "期次",
+    `due_date`     VARCHAR(13)   NULL COMMENT "到期日",
+    `overdue_days` INT           NULL COMMENT "逾期天数"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `int_star_dt`) comment '1期表现表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `int_star_dt`);
+select *
+from zl_zlsk_zld_loan_plan1_info_stat;
+
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/20241226/fpd_all_dfs_term1.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_loan_plan1_info_stat/_stream_load
+
+
+drop table if exists `zlzx_zlsk_zld_36_loan_plan1_info_stat`;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_36_loan_plan1_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `amt`          DECIMAL(8, 2) NOT NULL COMMENT "金额",
+    `term`         VARCHAR(3)    NOT NULL COMMENT "期次",
+    `due_date`     VARCHAR(13)   NULL COMMENT "到期日",
+    `overdue_days` INT           NULL COMMENT "逾期天数"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `int_star_dt`) comment '36现金贷1期表现表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `int_star_dt`);
+select *
+from zlzx_zlsk_zld_36_loan_plan1_info_stat;
+
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/20241226/fpd_36_dfs_term1.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_36_loan_plan1_info_stat/_stream_load
+
+
+drop table if exists `zlzx_zlsk_zld_zx_loan_plan1_info_stat`;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_zx_loan_plan1_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `amt`          DECIMAL(8, 2) NOT NULL COMMENT "金额",
+    `term`         VARCHAR(3)    NOT NULL COMMENT "期次",
+    `due_date`     VARCHAR(13)   NULL COMMENT "到期日",
+    `overdue_days` INT           NULL COMMENT "逾期天数",
+    `funding_code` VARCHAR(3)    NULL COMMENT "资方代码"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `int_star_dt`) comment 'zx_1期表现表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `int_star_dt`);
+select *
+from zlzx_zlsk_zld_zx_loan_plan1_info_stat;
+
+insert into zlzx_zlsk_zld_zx_loan_plan1_info_stat
+select loan_no, int_star_dt, amt, term, due_date, overdue_days, 'ZX'
+from zlzx_zlsk_zld_zx_loan_plan1_info_stattmp;
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/20241226/fpd_zx_dfs_term1.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_zx_loan_plan1_info_stattmp/_stream_load
+
+
+
+drop table if exists `zl_zlsk_zld_24_loan_plan1_info_stat`;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_24_loan_plan1_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `amt`          DECIMAL(8, 2) NOT NULL COMMENT "金额",
+    `term`         VARCHAR(3)    NOT NULL COMMENT "期次",
+    `due_date`     VARCHAR(13)   NULL COMMENT "到期日",
+    `overdue_days` INT           NULL COMMENT "逾期天数"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `int_star_dt`) comment '24现金贷1期表现表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `int_star_dt`);
+
+select *
+from zl_zlsk_zld_24_loan_plan1_info_stat;
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/20241225/fpd_24_dfs_term1.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_24_loan_plan1_info_stat/_stream_load
+
+
+
+drop table if exists `zl_zlsk_zld_cut_base_info_stat `;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_cut_base_info_stat `
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `loan_bal`    DECIMAL(8, 2) NULL COMMENT "剩余本金",
+    `od_days`     INT           NULL COMMENT "当前逾期天数",
+    `stat_t`      CHAR(7)       NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '24现金贷截面数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+insert into `zl_zlsk_zld_cut_base_info_stat `
+select *
+from `zl_zlsk_zld_cut_base_info_ stat`
+insert into `zl_zlsk_zld_back_base_info_stat `
+select *
+from `zl_zlsk_zld_back_base_info_ stat`;
+
+CREATE TABLE IF NOT EXISTS `xj_zlsk_zld_cut_base_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `loan_bal`    DECIMAL(8, 2) NULL COMMENT "剩余本金",
+    `od_days`     INT           NULL COMMENT "当前逾期天数",
+    `stat_t`      CHAR(7)       NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '截面数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_cut_data_20240808.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_cut_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20240918/zl_cut_data_20240918.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_cut_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20240918/zl_cut_data_20240918.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_cut_base_info_stat_new/_stream_load
+
+
+drop table if exists zlzx_zlsk_zld_sl_cut_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_sl_cut_base_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `loan_bal`    DECIMAL(8, 2) NULL COMMENT "剩余本金",
+    `od_days`     INT           NULL COMMENT "当前逾期天数",
+    `stat_t`      CHAR(7)       NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '36定价截面数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241224/zl_cut_data_36_20241224.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_sl_cut_base_info_stat/_stream_load
+
+
+drop table if exists zlzx_zlsk_zld_zx_cut_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_zx_cut_base_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `funding_code` VARCHAR(23)   NULL COMMENT "资方代码",
+    `loan_bal`     DECIMAL(8, 2) NULL COMMENT "剩余本金",
+    `od_days`      INT           NULL COMMENT "当前逾期天数",
+    `stat_t`       CHAR(7)       NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`) comment '振兴截面数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241224/zl_cut_data_ZX_20241224_new_column.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_zx_cut_base_info_stat/_stream_load
+
+
+CREATE TEMPORARY TABLE gio_event_message_sink
+(
+    event_time BIGINT NOT NULL,                -- 事件时间
+    event_key VARCHAR NOT NULL,                -- 埋点事件标识
+    anonymous_id VARCHAR,                      -- 访问用户ID
+    login_user_key VARCHAR,                    -- 登录用户KEY
+    login_user_id VARCHAR,                     -- 登录用户ID
+    result_var VARCHAR,                        -- 结果
+    reason_var VARCHAR,                        -- 原因
+    login_method_var VARCHAR,                  -- 登录方式
+    supplier_var VARCHAR,                      -- 认证供应商
+    time_duration_var VARCHAR,                 -- 处理时长
+    credit_limit DOUBLE,                        -- 授信额度
+    available_limit DOUBLE,                     -- 可用额度
+    credit_type_var VARCHAR,                   -- 授信类型
+    bank_name_var VARCHAR,                     -- 银行卡归属行
+    service_provider_name_var VARCHAR,         -- 绑卡服务商
+    approval_duration_var VARCHAR,             -- 审批时长
+    capital_limit DOUBLE,                       -- 资方额度
+    capital_credit_var VARCHAR,                -- 审核资方
+    withdraw_limit DOUBLE,                      -- 放款额度
+    capital_name_var VARCHAR,                  -- 放款资方
+    stage INT,                                 -- 期数
+    price DOUBLE,                               -- 金额
+    repay_statement_var VARCHAR,               -- 还款状态
+    repay_method_var VARCHAR,                   -- 还款方式
+    traffic_channel_var VARCHAR
+)WITH (
+    'connector' = 'hologres'
+    ,'dbname' = '${secret_values.holo_dbname_data_dws}'
+    ,'tablename' = 'realtime.gio_event_message'
+    -- ,'mutatetype' = 'insertorreplace'
+    -- ,'ignoredelete' = 'true'
+    -- ,'sink.delete-strategy' = 'DELETE_ROW_ON_PK'
+    -- ,'partial-insert.enabled' = 'true'
+    -- ,'binlog' = 'true'
+    ,'sdkMode' = 'jdbc'
+    ,'endpoint' = '${secret_values.holocatalog_endpoint}'
+    ,'username' = '${secret_values.holocatalog_username}'
+    ,'password' = '${secret_values.holocatalog_password}'
+)
+;
+
+
+INSERT INTO gio_event_message_sink
+(event_time,
+ event_key,
+ anonymous_id,
+ login_user_key,
+ login_user_id,
+ result_var,
+ reason_var,
+ credit_limit,
+ available_limit,
+ traffic_channel_var,
+ credit_type_var,
+ time_duration_var)
+SELECT event_time
+     , event_key
+     , anonymous_id
+     , login_user_key
+     , login_user_id
+     , result_var
+     , reason_var
+     , credit_limit
+     , available_limit
+     , traffic_channel_var
+     , credit_type_var
+     , time_duration_var
+
+-- ,'-' as user_source_var
+
+from drms_judgements_amount_view
+;
+
+
+
+UPDATE xj_zlsk_zld_back_base_info_stat
+SET stat_t = '2024-06-30'
+WHERE stat_t = '2024-05-31';
+
+/home/yaowei/20241113/zl_back_data_20241113.csv
+drop table if exists zl_zlsk_zld_back_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_back_base_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `due_amt`     DECIMAL(8, 2) NULL COMMENT "到期金额",
+    `od_days`     INT           NULL COMMENT "历史逾期天数",
+    `overdue_t`   CHAR(7)       NULL COMMENT "入逾日期",
+    `plan_status` VARCHAR(23)   NULL COMMENT "结清状态",
+    `stat_t`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `int_star_dt`) comment '入催回收数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/yaowei/20241223/zl_back_data_all_20241223.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_back_base_info_stat/_stream_load
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_back_data_20240808.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_back_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20240918/zl_back_data_20240918.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_back_base_info_stat/_stream_load
+
+drop table if exists zl_zlsk_zld_back_base_info_ stat;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_back_base_info_ stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `due_amt`     DECIMAL(8, 2) NULL COMMENT "到期金额",
+    `od_days`     INT           NULL COMMENT "历史逾期天数",
+    `overdue_t`   CHAR(7)       NULL COMMENT "入逾日期",
+    `plan_status` VARCHAR(23)   NULL COMMENT "结清状态",
+    `stat_t`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `int_star_dt`) comment '24现金贷入催回收数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/yaowei/20241223/zl_back_data_24_20241223.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_back_base_info_stat24/_stream_load
+
+insert into `zl_zlsk_zld_back_base_info_ stat`
+select *
+from zl_zlsk_zld_back_base_info_stat24
+
+
+drop table if exists `zl_zlsk_zld_back_base_info_stat `;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_back_base_info_stat `
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `due_amt`     DECIMAL(8, 2) NULL COMMENT "到期金额",
+    `od_days`     INT           NULL COMMENT "历史逾期天数",
+    `overdue_t`   CHAR(7)       NULL COMMENT "入逾日期",
+    `plan_status` VARCHAR(23)   NULL COMMENT "结清状态",
+    `stat_t`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `int_star_dt`) comment '24现金贷入催回收数据表'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+/home/yaowei/20241113/zl_back_data_20241113.csv
+drop table if exists zlsk_back_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlsk_back_base_info_stat`
+(
+    `loan_no`     VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`    DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `int_star_dt` DATETIME      NOT NULL COMMENT "放款日期",
+    `int_rate`    INT           NULL COMMENT "利率",
+    `due_amt`     DECIMAL(8, 2) NULL COMMENT "到期金额",
+    `od_days`     INT           NULL COMMENT "历史逾期天数",
+    `overdue_t`   CHAR(7)       NULL COMMENT "入逾日期",
+    `plan_status` VARCHAR(23)   NULL COMMENT "结清状态",
+    `stat_t`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `int_star_dt`) comment '现金贷入催回收数据'
+PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241118/zl_back_data_20241118.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_back_base_info_stat/_stream_load
+
+select *
+from `zl_zlsk_zld_back_base_info_ stat` appl_no 授信申请号
+appl_dt	授信申请日期
+loan_type	产品类型
+appl_amt	申请金额
+apprv_sts	审批状态
+stat_dt	数据日期
+drop table if exists zl_zlsk_zld_credit_appl_info_stat;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_credit_appl_info_stat`
+(
+    `appl_no`   VARCHAR(64)   NOT NULL COMMENT "授信申请号",
+    `appl_dt`   DATETIME      NOT NULL COMMENT "授信申请日期",
+    `appl_amt`  DECIMAL(8, 2) NULL COMMENT "申请金额",
+    `apprv_sts` VARCHAR(64)   NULL COMMENT "审批状态",
+    `appl_term` VARCHAR(64)   NULL COMMENT "期数",
+    `stat_t`    DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`appl_no`, `appl_dt`) comment '授信申请表'
+PARTITION BY RANGE(`appl_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+)
+DISTRIBUTED BY HASH(`appl_no`);
+
+select *
+from zlsk_credit_appl_info
+limit 10;
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/tmp/zl_zlsk_zld_credit_appl_info_stat.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_credit_appl_info_stat/_stream_load
+
+cut -d',' -f1-2,5-7,8  /mnt/disk1/Data/yaowei/20241223/zl_credit_appl_info_20241223_add.csv > /mnt/disk1/Data/shidx/tmp/zl_zlsk_zld_credit_appl_info_stat.csv
+
+
+cut -d',' -f1-2,4,6-8  /home/yaowei/20241113/loan_info_all_20241113.csv > /mnt/disk1/Data/shidx/tmp/loan_info_filtered_20241113.csv
+
+cut -d',' -f1-3,5-6,9 /home/yaowei/20241118/zl_credit_appl_info_20241118_add.csv > /mnt/disk1/Data/shidx/tmp/zl_credit_appl_info_20241118_add.csv
+解释：
+-d','：指定分隔符为逗号。
+-f1-3,5-6,9：选择第 1-3、5、6 和 9 列。
+> ...：将结果保存到新文件中。
+
+
+drop table xj_zlsk_zld_back_base_info_stat_2;
+-- 创建一个新表，复制原表的结构
+CREATE TABLE xj_zlsk_zld_back_base_info_stat_2 AS
+SELECT *
+FROM xj_zlsk_zld_back_base_info_stat
+WHERE 1 = 0;
+
+-- 将修改后的数据插入到新表中
+INSERT INTO xj_zlsk_zld_back_base_info_stat_2
+SELECT loan_no,
+       loan_amt,
+       int_star_dt,
+       int_rate,
+       due_amt,
+       od_days,
+       overdue_t,
+       plan_status,
+       CASE WHEN stat_t = '2024-05-31' THEN '2024-06-30' ELSE stat_t END as your_field
+FROM xj_zlsk_zld_back_base_info_stat;
+select *
+from xj_zlsk_zld_back_base_info_stat_2
+limit 10;
+select *
+from xj_zlsk_zld_back_base_info_stat
+limit 10;
+-- 删除原来的表
+DROP TABLE xj_zlsk_zld_back_base_info_stat;
+
+-- 重命名新表为原来的表名
+ALTER TABLE xj_zlsk_zld_back_base_info_stat_2 RENAME TO xj_zlsk_zld_back_base_info_stat;
+
+insert into xj_zlsk_zld_back_base_info_stat
+select *
+from xj_zlsk_zld_back_base_info_stat_2;
+
+select *
+from xj_zlsk_zld_loan_info_stat
+limit 10;
+
+select *
+from xj_zlsk_zld_loan_info_stat
+limit 10;
+select *
+from xj_zlsk_zld_loan_base_info_stat
+limit 10;
+select *
+from xj_zlsk_zld_cut_base_info_stat
+limit 10;
+select *
+from xj_zlsk_zld_loan_info_stat
+limit 10;
+
+
+/home/yaowei/20241113/zl_loan_base_info_100_20241113.csv
+
+
+drop table if exists zlzx_zlsk_zld_r_loan_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_r_loan_base_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '分定价vintage表'
+    PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+    )
+    DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /home/yaowei/20241224/zl_loan_base_info_24_20241224.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20241224/zl_loan_base_info_36_20241224.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20241216/zl_loan_base_info_36_20241216.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat/_stream_load
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_100_20240808.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_loan_base_info_stat/_stream_load
+
+
+curl --location-trusted -u root: -T /home/yaowei/20240918/zl_loan_base_info_100_20240918.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_loan_base_info_stat/_stream_load
+
+drop table if exists `zlzx_zlsk_zld_loan_base_info_stat `;
+CREATE TABLE IF NOT EXISTS `zlzx_zlsk_zld_loan_base_info_stat `
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `funding_code` VARCHAR(23)   NULL COMMENT "资方代码",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment 'zx_vintage表'
+    PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+    )
+    DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+insert into `zlzx_zlsk_zld_loan_base_info_stat `
+select *
+from `zlzx_zlsk_zld_loan_base_info_statX` curl --location-trusted -u root: -T /home/yaowei/20241224/zl_loan_base_info_ZX_20241224_new_column.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlzx_zlsk_zld_loan_base_info_statX/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20241224/zl_loan_base_info_36_20241224.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20241216/zl_loan_base_info_36_20241216.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat/_stream_load
+
+
+drop table if exists zl_zlsk_zld_r_loan_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_r_loan_base_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '分定价vintage表'
+    PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+    )
+    DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/yaowei/20241223/zl_loan_base_info_24_20241223.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/yaowei/20241223/zl_loan_base_info_36_20241223.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_r_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /home/yaowei/20241216/zl_loan_base_info_36_20241216.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_zld_r_loan_base_info_stat/_stream_load
+
+
+
+drop table if exists zl_zlsk_zld_loan_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zl_zlsk_zld_loan_base_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '全量vintage表'
+    PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+    )
+    DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/yaowei/20241223/zl_loan_base_info_100_20241223.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zl_zlsk_zld_loan_base_info_stat/_stream_load
+
+
+
+CREATE TABLE IF NOT EXISTS `yh_zlsk_zld_loan_base_info_stat_copy_10000`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '全量vintage表'
+    PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+    )
+    DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+insert into zl_db.yh_zlsk_zld_loan_base_info_stat_copy
+select *
+from yh_zlsk_zld_loan_base_info_stat;
+insert into zl_db.yh_zlsk_zld_loan_base_info_stat_copy_10000
+select *
+from yh_zlsk_zld_loan_base_info_stat;
+insert into zl_db.yh_zlsk_zld_loan_base_info_stat
+select *
+from zl_db.yh_zlsk_zld_loan_base_info_stat_copy
+where loan_amt > loan_balance
+  and loan_amt > 500
+order by rand()
+limit 10000;
+select *
+from zl_db.yh_zlsk_zld_loan_base_info_stat_copy
+limit 10;
+select *
+from zl_db.yh_zlsk_zld_loan_base_info_stat
+limit 10;
+alter table zl_db.yh_zlsk_zld_loan_base_info_stat RENAME TO zl_db.yh_zlsk_zld_loan_base_info_stat_copy;
+
+select count(*)
+from zl_db.yh_zlsk_zld_loan_base_info_stat_copy_10000;
+
+insert into zl_db.yh_zlsk_zld_loan_base_info_stat
+select loan_no
+     , loan_amt
+     , loan_bal                            as loan_balance
+     , int_star_dt
+     , od_days                             as curr_od_days
+     , int_rate
+     , CAST(CONCAT(stat_t, '-01') AS DATE) as stat_dt
+from zl_db.yh_zlsk_zld_cut_base_info_stat;
+
+select loan_no
+     , loan_amt
+     , loan_bal                                                  as loan_balance
+     , int_star_dt
+     , od_days                                                   as curr_od_days
+     , int_rate
+     , DATE_FORMAT(CAST(CONCAT(stat_t, '-01') AS DATE), '%Y-%m') as stat_dt
+from zl_db.yh_zlsk_zld_cut_base_info_stat;
+
+
+select loan_no
+     , loan_amt
+     , loan_bal as loan_balance
+     , int_star_dt
+     , od_days  as curr_od_days
+     , int_rate
+     , stat_t   as stat_dt
+from zl_db.yh_zlsk_zld_cut_base_info_stat;
+select count(*)
+from zl_db.yh_zlsk_zld_loan_base_info_stat;
+select *
+from zl_db.yh_zlsk_zld_loan_base_info_stat;
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_100_20240626.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/yh_zlsk_zld_loan_base_info_stat/_stream_load
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/yh_zlsk_zld_loan_base_info_stat_202407081619.csv  -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/yh_zlsk_zld_loan_base_info_stat/_stream_load
+
+drop table if exists zlsk_jyfq_loan_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlsk_jyfq_loan_base_info_stat`
+(
+    `loan_no`      VARCHAR(23)   NOT NULL COMMENT "借据号",
+    `loan_amt`     DECIMAL(8, 2) NOT NULL COMMENT "借款金额",
+    `loan_balance` DECIMAL(8, 2) NOT NULL COMMENT "剩余本金",
+    `int_star_dt`  DATETIME      NOT NULL COMMENT "放款日期",
+    `curr_od_days` INT           NULL COMMENT "当前逾期天数",
+    `int_rate`     INT           NULL COMMENT "利率",
+    `stat_dt`      DATE          NULL COMMENT "数据日期"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '全量vintage表'
+    PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+    )
+    DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/miaojun/data_create/zl_loan_base_info_100_20240617.csv -H "column_separator:," -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/zlsk_jyfq_loan_base_info_stat/_stream_load
+
+
+
+select loan_no
+     , loan_amt
+     , loan_bal as loan_balance
+     , int_star_dt
+     , od_days  as curr_od_days
+     , int_rate
+     , stat_t   as stat_dt
+from zl_db.yh_zlsk_zld_cut_base_info_stat;
+
+
+
+BEGIN;
+/*
+DROP TABLE zl_data_clean.zl_loan_repay_plan;
+*/
+-- Type: TABLE ; Name: zl_loan_repay_plan; Owner: data_dws_developer
+CREATE TABLE zl_data_clean.zl_loan_repay_plan
+(
+    id                 text NOT NULL,
+    loan_no            text,
+    perd_no            bigint,
+    stat_dt            text,
+    appl_seq           text,
+    req_seq_no         text,
+    up_appl_cde        text,
+    dn_seq             text,
+    cont_no            text,
+    id_no              text,
+    loan_type          text,
+    loan_type_name     text,
+    funding_code       text,
+    funding_name       text,
+    due_dt             text,
+    recent_repay_dt    text,
+    ps_perd_amt        text,
+    ps_prcp_amt        text,
+    ps_norm_int        text,
+    ps_fee_amt         text,
+    setl_prcp          text,
+    setl_norm_int      text,
+    setl_fee_amt       text,
+    setl_od_int_amt    text,
+    setl_penal_fee_amt text,
+    setl_comm_od_int   text,
+    ps_rem_prcp        text,
+    amort_prime_amt    text,
+    ps_wv_nm_int       text,
+    ps_wv_od_int       text,
+    ps_wv_fee_amt      text,
+    ps_sts             text,
+    ps_od_ind          text,
+    grace_days         text,
+    grace_period_flag  text,
+    setl_ind           text,
+    create_time        text,
+    update_time        text,
+    data_source        text,
+    per_guar_fee       text,
+    advice_amt         text,
+    setl_per_guar_fee  text,
+    act_advice_amt     text,
+    od_int_amt         text,
+    fee_amt            text,
+    act_fee_amt        text,
+    penal_fee_amt      text,
+    insure_amt         text,
+    act_insure_amt     text,
+    PRIMARY KEY (id)
+);
+
+
+
+CALL set_table_property('zl_data_clean.zl_loan_repay_plan', 'orientation', 'column');
+
+CALL set_table_property('zl_data_clean.zl_loan_repay_plan', 'storage_format', 'orc');
+
+CALL set_table_property('zl_data_clean.zl_loan_repay_plan', 'bitmap_columns',
+                        'id,loan_no,stat_dt,appl_seq,req_seq_no,up_appl_cde,dn_seq,cont_no,id_no,loan_type,loan_type_name,funding_code,funding_name,due_dt,recent_repay_dt,ps_perd_amt,ps_prcp_amt,ps_norm_int,ps_fee_amt,setl_prcp,setl_norm_int,setl_fee_amt,setl_od_int_amt,setl_penal_fee_amt,setl_comm_od_int,ps_rem_prcp,amort_prime_amt,ps_wv_nm_int,ps_wv_od_int,ps_wv_fee_amt,ps_sts,ps_od_ind,grace_days,grace_period_flag,setl_ind,create_time,update_time,data_source');
+
+CALL set_table_property('zl_data_clean.zl_loan_repay_plan', 'dictionary_encoding_columns',
+                        'id:auto,loan_no:auto,stat_dt:auto,appl_seq:auto,req_seq_no:auto,up_appl_cde:auto,dn_seq:auto,cont_no:auto,id_no:auto,loan_type:auto,loan_type_name:auto,funding_code:auto,funding_name:auto,due_dt:auto,recent_repay_dt:auto,ps_perd_amt:auto,ps_prcp_amt:auto,ps_norm_int:auto,ps_fee_amt:auto,setl_prcp:auto,setl_norm_int:auto,setl_fee_amt:auto,setl_od_int_amt:auto,setl_penal_fee_amt:auto,setl_comm_od_int:auto,ps_rem_prcp:auto,amort_prime_amt:auto,ps_wv_nm_int:auto,ps_wv_od_int:auto,ps_wv_fee_amt:auto,ps_sts:auto,ps_od_ind:auto,grace_days:auto,grace_period_flag:auto,setl_ind:auto,create_time:auto,update_time:auto,data_source:auto');
+
+CALL set_table_property('zl_data_clean.zl_loan_repay_plan', 'distribution_key', 'id');
+
+CALL set_table_property('zl_data_clean.zl_loan_repay_plan', 'table_group', 'data_dws_tg_default');
+
+CALL set_table_property('zl_data_clean.zl_loan_repay_plan', 'table_storage_mode', 'hot');
+
+CALL set_table_property('zl_data_clean.zl_loan_repay_plan', 'time_to_live_in_seconds', '3153600000');
+COMMENT ON TABLE zl_data_clean.zl_loan_repay_plan IS NULL;
+
+ALTER TABLE zl_data_clean.zl_loan_repay_plan OWNER TO data_dws_developer;
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.id IS '主键';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.loan_no IS '借据编号';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.perd_no IS '期号';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.stat_dt IS '数据日期';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.appl_seq IS '授信流水号';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.req_seq_no IS '下游借款流水号';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.up_appl_cde IS '上游授信流水号';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.dn_seq IS '放款申请流水号';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.cont_no IS '合同号';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.id_no IS '身份证号';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.loan_type IS '贷款品种  2-自营 3-场景 4-资金批发';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.loan_type_name IS '贷款品种名称';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.funding_code IS '资金方通道';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.funding_name IS '资金方名称';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.due_dt IS '到期日';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.recent_repay_dt IS '最近还款日';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_perd_amt IS '期供';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_prcp_amt IS '应还本金';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_norm_int IS '应还利息';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_fee_amt IS '应还费用金额';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.setl_prcp IS '已还本金';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.setl_norm_int IS '已还利息';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.setl_fee_amt IS '已还费用金额';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.setl_od_int_amt IS '已还罚息金额';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.setl_penal_fee_amt IS '已还违约金金额';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.setl_comm_od_int IS '已还提前还款手续费';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_rem_prcp IS '剩余本金';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.amort_prime_amt IS '优惠金额';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_wv_nm_int IS '减免利息';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_wv_od_int IS '减免罚息';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_wv_fee_amt IS '减免费用';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_sts IS '还款计划执行状态 1正常2逾期未结清3曾逾期已结清 4结清';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.ps_od_ind IS '逾期标志 Y 逾期 N 未逾期';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.grace_days IS '逾期天数';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.grace_period_flag IS '是否宽限期内  Y：是  N：否';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.setl_ind IS '是否结清  Y：是  N：否';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.create_time IS '创建时间';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.update_time IS '更新时间';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.data_source IS '数据来源';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.per_guar_fee IS '应还担保费';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.advice_amt IS '应还咨询费';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.setl_per_guar_fee IS '实还担保费';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.act_advice_amt IS '实还咨询费';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.od_int_amt IS '应还罚息';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.fee_amt IS '应还手续费';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.act_fee_amt IS '实还手续费';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.penal_fee_amt IS '应还违约金';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.insure_amt IS '保险费';
+COMMENT ON COLUMN zl_data_clean.zl_loan_repay_plan.act_insure_amt IS '实还保险费';
+
+END;
+
+
+
+drop table if exists zlsk_jyfq_loan_base_info_stat;
+CREATE TABLE IF NOT EXISTS `zlsk_jyfq_loan_base_info_stat`
+(
+    `id`                 TEXT   NOT NULL COMMENT "主键",
+    `loan_no`            TEXT   NULL COMMENT "借据编号",
+    `perd_no`            BIGINT NULL COMMENT "期号",
+    `stat_dt`            text   NULL COMMENT "数据日期",
+    `appl_seq`           text   NULL COMMENT "授信流水号",
+    `req_seq_no`         text   NULL COMMENT "下游借款流水号",
+    `up_appl_cde`        text   NULL COMMENT "上游授信流水号",
+    `dn_seq`             text   NULL COMMENT "放款申请流水号",
+    `cont_no`            text   NULL COMMENT "合同号",
+    `id_no`              text   NULL COMMENT "身份证号",
+    `loan_type`          text   NULL COMMENT "贷款品种  2-自营 3-场景 4-资金批发",
+    `loan_type_name`     text   NULL COMMENT "贷款品种名称",
+    `funding_code`       text   NULL COMMENT "资金方通道",
+    `funding_name`       text   NULL COMMENT "资金方名称",
+    `due_dt`             text   NULL COMMENT "到期日",
+    `recent_repay_dt`    text   NULL COMMENT "最近还款日",
+    `ps_perd_amt`        text   NULL COMMENT "期供",
+    `ps_prcp_amt`        text   NULL COMMENT "应还本金",
+    `ps_norm_int`        text   NULL COMMENT "应还利息",
+    `ps_fee_amt`         text   NULL COMMENT "应还费用金额",
+    `setl_prcp`          text   NULL COMMENT "已还本金",
+    `setl_norm_int`      text   NULL COMMENT "已还利息",
+    `setl_fee_amt`       text   NULL COMMENT "已还费用金额",
+    `setl_od_int_amt`    text   NULL COMMENT "已还罚息金额",
+    `setl_penal_fee_amt` text   NULL COMMENT "已还违约金金额",
+    `setl_comm_od_int`   text   NULL COMMENT "已还提前还款手续费",
+    `ps_rem_prcp`        text   NULL COMMENT "剩余本金",
+    `amort_prime_amt`    text   NULL COMMENT "优惠金额",
+    `ps_wv_nm_int`       text   NULL COMMENT "减免利息",
+    `ps_wv_od_int`       text   NULL COMMENT "减免罚息",
+    `ps_wv_fee_amt`      text   NULL COMMENT "减免费用",
+    `ps_sts`             text   NULL COMMENT "还款计划执行状态 1正常2逾期未结清3曾逾期已结清 4结清",
+    `ps_od_ind`          text   NULL COMMENT "逾期标志 Y 逾期 N 未逾期",
+    `grace_days`         text   NULL COMMENT "逾期天数",
+    `grace_period_flag`  text   NULL COMMENT "是否宽限期内  Y：是  N：否",
+    `setl_ind`           text   NULL COMMENT "是否结清  Y：是  N：否",
+    `create_time`        text   NULL COMMENT "创建时间",
+    `update_time`        text   NULL COMMENT "更新时间",
+    `data_source`        text   NULL COMMENT "数据来源",
+    `per_guar_fee`       text   NULL COMMENT "应还担保费",
+    `advice_amt`         text   NULL COMMENT "应还咨询费",
+    `setl_per_guar_fee`  text   NULL COMMENT "实还担保费",
+    `act_advice_amt`     text   NULL COMMENT "实还咨询费",
+    `od_int_amt`         text   NULL COMMENT "应还罚息",
+    `fee_amt`            text   NULL COMMENT "应还手续费",
+    `act_fee_amt`        text   NULL COMMENT "实还手续费",
+    `penal_fee_amt`      text   NULL COMMENT "应还违约金",
+    `insure_amt`         text   NULL COMMENT "保险费",
+    `act_insure_amt`     text   NULL COMMENT "实还保险费"
+) ENGINE = OLAP DUPLICATE KEY(`loan_no`, `loan_amt`, `loan_balance`) comment '全量vintage表'
+    PARTITION BY RANGE(`int_star_dt`)
+(
+    PARTITION p2019 VALUES [('2019-01-01 00:00:00'), ('2020-01-01 00:00:00')),
+    PARTITION p2020 VALUES [('2020-01-01 00:00:00'), ('2021-01-01 00:00:00')),
+    PARTITION p2021 VALUES [('2021-01-01 00:00:00'), ('2022-01-01 00:00:00')),
+    PARTITION p2022 VALUES [('2022-01-01 00:00:00'), ('2023-01-01 00:00:00')),
+    PARTITION p2023 VALUES [('2023-01-01 00:00:00'), ('2024-01-01 00:00:00')),
+    PARTITION p2024 VALUES [('2024-01-01 00:00:00'), ('2025-01-01 00:00:00'))
+    )
+    DISTRIBUTED BY HASH(`loan_no`, `loan_amt`);
+
+
+
+drop table if exists xj_zlsk_loan_repay_plan;
+CREATE TABLE IF NOT EXISTS `xj_zlsk_loan_repay_plan`
+(
+    `id`                 TEXT   NOT NULL COMMENT "主键",
+    `loan_no`            TEXT   NULL COMMENT "借据编号",
+    `perd_no`            BIGINT NULL COMMENT "期号",
+    `stat_dt`            text   NULL COMMENT "数据日期",
+    `appl_seq`           text   NULL COMMENT "授信流水号",
+    `req_seq_no`         text   NULL COMMENT "下游借款流水号",
+    `up_appl_cde`        text   NULL COMMENT "上游授信流水号",
+    `dn_seq`             text   NULL COMMENT "放款申请流水号",
+    `cont_no`            text   NULL COMMENT "合同号",
+    `id_no`              text   NULL COMMENT "身份证号",
+    `loan_type`          text   NULL COMMENT "贷款品种  2-自营 3-场景 4-资金批发",
+    `loan_type_name`     text   NULL COMMENT "贷款品种名称",
+    `funding_code`       text   NULL COMMENT "资金方通道",
+    `funding_name`       text   NULL COMMENT "资金方名称",
+    `due_dt`             text   NULL COMMENT "到期日",
+    `recent_repay_dt`    text   NULL COMMENT "最近还款日",
+    `ps_perd_amt`        text   NULL COMMENT "期供",
+    `ps_prcp_amt`        text   NULL COMMENT "应还本金",
+    `ps_norm_int`        text   NULL COMMENT "应还利息",
+    `ps_fee_amt`         text   NULL COMMENT "应还费用金额",
+    `setl_prcp`          text   NULL COMMENT "已还本金",
+    `setl_norm_int`      text   NULL COMMENT "已还利息",
+    `setl_fee_amt`       text   NULL COMMENT "已还费用金额",
+    `setl_od_int_amt`    text   NULL COMMENT "已还罚息金额",
+    `setl_penal_fee_amt` text   NULL COMMENT "已还违约金金额",
+    `setl_comm_od_int`   text   NULL COMMENT "已还提前还款手续费",
+    `ps_rem_prcp`        text   NULL COMMENT "剩余本金",
+    `amort_prime_amt`    text   NULL COMMENT "优惠金额",
+    `ps_wv_nm_int`       text   NULL COMMENT "减免利息",
+    `ps_wv_od_int`       text   NULL COMMENT "减免罚息",
+    `ps_wv_fee_amt`      text   NULL COMMENT "减免费用",
+    `ps_sts`             text   NULL COMMENT "还款计划执行状态 1正常2逾期未结清3曾逾期已结清 4结清",
+    `ps_od_ind`          text   NULL COMMENT "逾期标志 Y 逾期 N 未逾期",
+    `grace_days`         text   NULL COMMENT "逾期天数",
+    `grace_period_flag`  text   NULL COMMENT "是否宽限期内  Y：是  N：否",
+    `setl_ind`           text   NULL COMMENT "是否结清  Y：是  N：否",
+    `create_time`        text   NULL COMMENT "创建时间",
+    `update_time`        text   NULL COMMENT "更新时间",
+    `data_source`        text   NULL COMMENT "数据来源",
+    `per_guar_fee`       text   NULL COMMENT "应还担保费",
+    `advice_amt`         text   NULL COMMENT "应还咨询费",
+    `setl_per_guar_fee`  text   NULL COMMENT "实还担保费",
+    `act_advice_amt`     text   NULL COMMENT "实还咨询费",
+    `od_int_amt`         text   NULL COMMENT "应还罚息",
+    `fee_amt`            text   NULL COMMENT "应还手续费",
+    `act_fee_amt`        text   NULL COMMENT "实还手续费",
+    `penal_fee_amt`      text   NULL COMMENT "应还违约金",
+    `insure_amt`         text   NULL COMMENT "保险费",
+    `act_insure_amt`     text   NULL COMMENT "实还保险费"
+) ENGINE = OLAP DUPLICATE KEY(`id`) comment ''
+
+    DISTRIBUTED BY HASH(`id`);
+
+curl --location-trusted -u root: -T /mnt/disk1/Data/shidx/DataWorks_数据开发_20240815135226_0.csv -H "column_separator:,"  -H "max_filter_ratio:0.001"  http://127.0.0.1:8030/api/zl_db/xj_zlsk_loan_repay_plan/_stream_load
+
+select *
+from zl_db.xj_zlsk_loan_repay_plan
+where id = 'BN1729059657299902464_6_20240727';
+select *
+from zl_db.xj_zlsk_loan_repay_plan
+limit 10;
+select count(*)
+from zl_db.xj_zlsk_loan_repay_plan
+limit 10;

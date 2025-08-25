@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Todo List (原生JS)</title>
+  <style>
+    .completed { text-decoration: line-through; }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>Todo List</h1>
+
+  <!-- 添加任务表单 -->
+  <div>
+    <input type="text" id="new-todo" placeholder="输入任务内容">
+    <button onclick="addTodo()">添加</button>
+  </div>
+
+  <!-- 任务列表 -->
+  <ul id="todo-list"></ul>
+
+  <script>
+    // 初始化加载数据
+    document.addEventListener('DOMContentLoaded', loadTodos);
+
+    // 加载任务列表
+    function loadTodos() {
+      fetch('/api/todos')
+        .then(res => res.json())
+        .then(todos => {
+          const list = document.getElementById('todo-list');
+          list.innerHTML = todos.map(todo => `
+            <li id="todo-${todo.id}">
+              <input type="checkbox" ${todo.completed ? 'checked' : ''}
+                     onchange="toggleTodo(${todo.id})">
+              <span class="${todo.completed ? 'completed' : ''}">${todo.content}</span>
+              <button onclick="editTodo(${todo.id})">编辑</button>
+              <button onclick="deleteTodo(${todo.id})">删除</button>
+            </li>
+          `).join('');
+        });
+    }
+
+    // 添加任务
+    function addTodo() {
+      const content = document.getElementById('new-todo').value.trim();
+      if (!content) return;
+
+      fetch('/api/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      })
+      .then(res => res.json())
+      .then(() => {
+        document.getElementById('new-todo').value = '';
+        loadTodos(); // 刷新列表
+      });
+    }
+
+    // 切换完成状态
+    function toggleTodo(id) {
+      const checkbox = document.querySelector(`#todo-${todo.id} input[type="checkbox"]`);
+      fetch(`/api/todos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: checkbox.checked })
+      });
+    }
+
+    // 编辑任务
+    function editTodo(id) {
+      const li = document.getElementById(`todo-${id}`);
+      const span = li.querySelector('span');
+      const newContent = prompt('编辑任务', span.textContent);
+
+      if (newContent) {
+        fetch(`/api/todos/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: newContent })
+        })
+        .then(loadTodos);
+      }
+    }
+
+    // 删除任务
+    function deleteTodo(id) {
+      if (confirm('确定要删除吗？')) {
+        fetch(`/api/todos/${id}`, {
+          method: 'DELETE'
+        })
+        .then(() => {
+          document.getElementById(`todo-${id}`).remove();
+        });
+      }
+    }
+  </script>
+</body>
+</html>

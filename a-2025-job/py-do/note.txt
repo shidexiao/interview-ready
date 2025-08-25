@@ -1,0 +1,36 @@
+
+一句话理解参数化防注入的原理
+参数化查询不是拼接字符串，而是将 SQL 模板 和 参数分开发送到数据库，数据库“只把参数当数据”，绝不当成 SQL。
+
+这不是语法技巧，而是数据库驱动层的协议行为差异。
+
+举个具体例子对比（你就懂了）
+❌ 非参数化（危险写法，直接拼接）
+name = "' OR 1=1 --"
+sql = f"SELECT * FROM users WHERE name = '{name}'"
+最后发送给数据库的是：
+SELECT * FROM users WHERE name = '' OR 1=1 --'
+
+这不是参数，这是真正的 SQL 逻辑语句，数据库会执行 OR 1=1，返回所有数据，注入成功！
+✅ 参数化（安全写法）
+stmt = text("SELECT * FROM users WHERE name = :name")
+db.session.execute(stmt, {"name": "' OR 1=1 --"})
+这时候发送给数据库的不是一整条 SQL 字符串，而是两部分：
+SQL 模板：SELECT * FROM users WHERE name = ?
+参数值：["' OR 1=1 --"]
+数据库收到以后：
+? 是占位符；
+参数值 "' OR 1=1 --" 会被当成纯字符串常量处理；
+数据库根本不会把里面的内容当成 SQL 代码。
+
+最终执行的是：
+SELECT * FROM users WHERE name = ''' OR 1=1 --'
+
+参数化不是拼接
+参数化查询是你把结构和数据分开发送，数据库驱动在底层协议层保证：
+结构先编译为执行计划（SQL 逻辑结构）
+数据再绑定到占位符，数据库只认为它是数据，不解析其内容
+这是数据库驱动（如 psycopg2、mysqlclient）与数据库通信协议中定义好的行为。
+
+
+
