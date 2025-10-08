@@ -1,0 +1,8 @@
+ccxt>=4.3.83
+pandas>=2.0
+numpy>=1.25
+websockets>=12.0
+aiohttp>=3.9
+python-dateutil>=2.9
+tqdm>=4.66
+pyyaml>=6.0
